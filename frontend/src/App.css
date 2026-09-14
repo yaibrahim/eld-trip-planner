@@ -284,6 +284,27 @@
   padding: 12px 14px;
   border-radius: 10px;
   font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.error-banner__retry {
+  border: 1px solid #fecaca;
+  background: #ffffff;
+  color: #b91c1c;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.error-banner__retry:hover {
+  background: #fef2f2;
 }
 
 /* Recent trips */

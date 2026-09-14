@@ -24,11 +24,22 @@ function pin(color, label) {
 export default function RouteMap({ waypoints, geometry, stops }) {
   if (!geometry || geometry.length === 0) return null
 
-  const lats = geometry.map((p) => p[0])
-  const lons = geometry.map((p) => p[1])
+  // Avoid Math.min/max(...array): spreading a very long route's geometry
+  // (tens of thousands of points for cross-country trips) as call arguments
+  // overflows the call stack. Reduce over the array instead.
+  let minLat = geometry[0][0]
+  let maxLat = geometry[0][0]
+  let minLon = geometry[0][1]
+  let maxLon = geometry[0][1]
+  for (const [lat, lon] of geometry) {
+    if (lat < minLat) minLat = lat
+    if (lat > maxLat) maxLat = lat
+    if (lon < minLon) minLon = lon
+    if (lon > maxLon) maxLon = lon
+  }
   const bounds = [
-    [Math.min(...lats), Math.min(...lons)],
-    [Math.max(...lats), Math.max(...lons)],
+    [minLat, minLon],
+    [maxLat, maxLon],
   ]
 
   const legendItems = [

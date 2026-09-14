@@ -344,7 +344,7 @@ def plan_trip(current_location, pickup_location, dropoff_location, current_cycle
     return {
         "summary": summary,
         "waypoints": waypoints,
-        "route": {"geometry": geometry},
+        "route": {"geometry": geo.simplify_geometry(geometry)},
         "stops": stops,
         "daily_logs": daily_logs,
     }

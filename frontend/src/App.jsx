@@ -4,6 +4,7 @@ import RouteMap from './components/RouteMap'
 import TripSummary from './components/TripSummary'
 import DailyLogSheet from './components/DailyLogSheet'
 import RecentTrips from './components/RecentTrips'
+import ErrorBoundary from './components/ErrorBoundary'
 import { planTrip, fetchRecentTrips, apiDocsUrl } from './api'
 import './App.css'
 
@@ -64,7 +65,7 @@ export default function App() {
           )}
 
           {result && (
-            <>
+            <ErrorBoundary key={result.id ?? result.summary?.start_time}>
               <RouteMap waypoints={result.waypoints} geometry={result.route.geometry} stops={result.stops} />
               <TripSummary summary={result.summary} stops={result.stops} />
               <section className="daily-logs">
@@ -73,7 +74,7 @@ export default function App() {
                   <DailyLogSheet key={day.date} day={day} dayIndex={i} />
                 ))}
               </section>
-            </>
+            </ErrorBoundary>
           )}
         </main>
       </div>

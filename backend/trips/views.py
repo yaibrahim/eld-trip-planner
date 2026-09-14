@@ -57,6 +57,11 @@ def plan_trip(request):
         )
     except (GeocodeError, RoutingError) as exc:
         return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception:
+        return Response(
+            {"detail": "Something went wrong planning this trip. Please check the locations and try again."},
+            status=status.HTTP_502_BAD_GATEWAY,
+        )
 
     trip = Trip.objects.create(
         current_location=data["current_location"],

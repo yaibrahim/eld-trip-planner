@@ -28,14 +28,17 @@ class RoutingError(Exception):
 
 def geocode(place_name):
     """Return (lat, lon, display_name) for a free-text place name."""
-    resp = requests.get(
-        NOMINATIM_URL,
-        params={"q": place_name, "format": "json", "limit": 1},
-        headers={"User-Agent": USER_AGENT},
-        timeout=10,
-    )
-    resp.raise_for_status()
-    results = resp.json()
+    try:
+        resp = requests.get(
+            NOMINATIM_URL,
+            params={"q": place_name, "format": "json", "limit": 1},
+            headers={"User-Agent": USER_AGENT},
+            timeout=10,
+        )
+        resp.raise_for_status()
+        results = resp.json()
+    except requests.exceptions.RequestException as exc:
+        raise GeocodeError(f"Could not look up '{place_name}' right now, please try again") from exc
     if not results:
         raise GeocodeError(f"Could not find a location matching '{place_name}'")
     top = results[0]
@@ -73,6 +76,20 @@ def reverse(lat, lon):
     return data["display_name"]
 
 
+def simplify_geometry(geometry, max_points=1500):
+    """Evenly decimate a polyline down to at most `max_points` points,
+    always keeping the first and last. Long-haul routes can come back from
+    OSRM with 100k+ points, which bloats the response and can crash
+    clients that do naive array-spread math (e.g. Math.min(...points)) on it.
+    """
+    n = len(geometry)
+    if n <= max_points:
+        return geometry
+    step = (n - 1) / (max_points - 1)
+    indices = sorted({round(i * step) for i in range(max_points)})
+    return [geometry[i] for i in indices]
+
+
 def route(coords):
     """coords: list of (lat, lon) in travel order. Returns dict with
     distance_miles, duration_hours, geometry (list of [lat, lon]) and
@@ -80,14 +97,17 @@ def route(coords):
     """
     lon_lat_pairs = ";".join(f"{lon},{lat}" for lat, lon in coords)
     url = f"{OSRM_URL}/{lon_lat_pairs}"
-    resp = requests.get(
-        url,
-        params={"overview": "full", "geometries": "geojson", "steps": "false"},
-        headers={"User-Agent": USER_AGENT},
-        timeout=15,
-    )
-    resp.raise_for_status()
-    data = resp.json()
+    try:
+        resp = requests.get(
+            url,
+            params={"overview": "full", "geometries": "geojson", "steps": "false"},
+            headers={"User-Agent": USER_AGENT},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+    except requests.exceptions.RequestException as exc:
+        raise RoutingError("Could not compute a route right now, please try again") from exc
     if data.get("code") != "Ok" or not data.get("routes"):
         raise RoutingError(f"OSRM could not compute a route: {data.get('message', data.get('code'))}")
 
