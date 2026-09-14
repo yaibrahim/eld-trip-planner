@@ -29,6 +29,11 @@ ELD grid.
 5. The trip and its computed result are saved to the database and shown in
    a "Recent Trips" list.
 
+## Live app
+
+- **App**: https://eld-trip-planner-ruddy.vercel.app
+- **API**: https://eld-trip-planner-api-ashy.vercel.app/api/
+
 ## HOS rules implemented
 
 Property-carrying driver, 70-hour/8-day cycle, no adverse driving
@@ -101,32 +106,57 @@ Returns `{ summary, waypoints, route: { geometry }, stops, daily_logs }`.
 
 ## Deployment
 
-### Backend → Render
+Both the frontend and backend are deployed on **Vercel** as two separate
+projects from the same GitHub repo (Render and Railway were tried first but
+both now require a credit card on file even for their free tiers, which
+this deployment avoids).
 
-1. Push this repo to GitHub.
-2. On [Render](https://render.com), New → Blueprint, point it at this repo
-   (it will read `backend/render.yaml`) — or New → Web Service with:
-   - Root directory: `backend`
-   - Build command: `./build.sh`
-   - Start command: `gunicorn config.wsgi:application`
-3. Set environment variables (see `backend/.env.example`):
-   - `SECRET_KEY` — Render can auto-generate this
-   - `DEBUG=false`
-   - `ALLOWED_HOSTS=.onrender.com`
-   - `CORS_ALLOWED_ORIGINS=https://<your-frontend>.vercel.app`
-4. Note the deployed URL, e.g. `https://eld-trip-planner-api.onrender.com`.
+### Backend → Vercel (Python serverless)
+
+The backend deploys as a Python serverless function rather than a
+long-running server:
+
+- `backend/api/index.py` is the serverless entrypoint — it runs Django
+  migrations against a SQLite file in `/tmp` on cold start (the only
+  writable path in the serverless filesystem), then exposes the Django
+  WSGI app.
+- `backend/vercel.json` tells Vercel's `@vercel/python` builder to route
+  all requests to that entrypoint.
+
+To redeploy or set up your own copy:
+
+```bash
+cd backend
+vercel link          # create/link a Vercel project rooted here
+vercel env add SECRET_KEY production
+vercel env add DEBUG production                # "false"
+vercel env add ALLOWED_HOSTS production        # ".vercel.app"
+vercel env add CORS_ALLOWED_ORIGINS production # your frontend's URL
+vercel --prod
+```
+
+**Note on persistence**: Vercel's serverless filesystem is ephemeral, so
+the SQLite-backed "Recent Trips" history only lives for the life of a warm
+function instance and resets on redeploy/cold start. That's expected at
+this demo scale — see the `current_cycle_used` simplification note above
+for the same reasoning applied to the HOS cycle math.
+
+A `backend/render.yaml` + `backend/build.sh` are also included as a ready
+alternative if you do have a Render/Railway account with billing set up —
+that path runs the same Django app as a normal long-running server with a
+persistent-for-longer SQLite file instead of the `/tmp` workaround above.
 
 ### Frontend → Vercel
 
-1. Import this repo on [Vercel](https://vercel.com), set the project root
-   to `frontend`.
-2. Set the environment variable `VITE_API_BASE_URL` to
-   `https://<your-render-service>.onrender.com/api`.
-3. Deploy. Vercel auto-detects the Vite framework.
+```bash
+cd frontend
+vercel link
+vercel env add VITE_API_BASE_URL production   # https://<your-backend>.vercel.app/api
+vercel --prod
+```
 
-Once both are live, update the backend's `CORS_ALLOWED_ORIGINS` with the
-real Vercel URL and redeploy the backend.
-
-**Note on persistence**: Render's free tier uses an ephemeral filesystem,
-so the SQLite-backed "Recent Trips" history resets on redeploy/restart.
-That's expected for this demo-scale deployment.
+Vercel auto-detects the Vite framework. After both are deployed, make sure
+the backend's `CORS_ALLOWED_ORIGINS` matches the frontend's real URL (the
+included `CORS_ALLOWED_ORIGIN_REGEXES` in `settings.py` already allows any
+`*.vercel.app` origin as a convenience, so this mainly matters if you move
+the frontend off Vercel).
