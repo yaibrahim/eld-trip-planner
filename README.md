@@ -111,6 +111,18 @@ projects from the same GitHub repo (Render and Railway were tried first but
 both now require a credit card on file even for their free tiers, which
 this deployment avoids).
 
+**Important**: each Vercel project's Git integration is intentionally
+**disconnected**, so pushing to GitHub does *not* auto-deploy. This is a
+monorepo with two apps living in one repo (`backend/`, `frontend/`); a
+git-triggered deploy builds from the repo root and doesn't know which
+subfolder is which project's root, which took the site down once already.
+Deploy explicitly instead, from inside the right folder:
+
+```bash
+cd backend && vercel --prod   # deploy the API
+cd frontend && vercel --prod  # deploy the app
+```
+
 ### Backend → Vercel (Python serverless)
 
 The backend deploys as a Python serverless function rather than a
