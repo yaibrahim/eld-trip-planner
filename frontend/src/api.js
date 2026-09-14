@@ -13,3 +13,7 @@ export async function fetchRecentTrips() {
   const { data } = await client.get('/trips/')
   return data
 }
+
+export function apiDocsUrl() {
+  return `${baseURL.replace(/\/api\/?$/, '')}/api/docs/`
+}

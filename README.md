@@ -33,6 +33,9 @@ ELD grid.
 
 - **App**: https://eld-trip-planner-ruddy.vercel.app
 - **API**: https://eld-trip-planner-api-ashy.vercel.app/api/
+- **API docs (Swagger UI)**: https://eld-trip-planner-api-ashy.vercel.app/api/docs/
+- **API docs (ReDoc)**: https://eld-trip-planner-api-ashy.vercel.app/api/redoc/
+- **OpenAPI schema (JSON)**: https://eld-trip-planner-api-ashy.vercel.app/api/schema/
 
 ## HOS rules implemented
 
@@ -88,6 +91,10 @@ Runs the app at `http://localhost:5173`; Vite proxies `/api` to
 `http://localhost:8000` in development (see `vite.config.js`).
 
 ## API
+
+Full interactive docs are generated with [drf-spectacular](https://drf-spectacular.readthedocs.io/)
+and served at `/api/docs/` (Swagger UI), `/api/redoc/` (ReDoc), and
+`/api/schema/` (raw OpenAPI 3 YAML/JSON) — see the live links above.
 
 `POST /api/trips/plan/`
 

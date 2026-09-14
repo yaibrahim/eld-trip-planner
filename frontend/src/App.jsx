@@ -4,7 +4,7 @@ import RouteMap from './components/RouteMap'
 import TripSummary from './components/TripSummary'
 import DailyLogSheet from './components/DailyLogSheet'
 import RecentTrips from './components/RecentTrips'
-import { planTrip, fetchRecentTrips } from './api'
+import { planTrip, fetchRecentTrips, apiDocsUrl } from './api'
 import './App.css'
 
 export default function App() {
@@ -39,8 +39,13 @@ export default function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <h1>ELD Trip Planner</h1>
-        <p>Property-carrying driver · 70hr/8-day cycle · no adverse driving conditions</p>
+        <div>
+          <h1>ELD Trip Planner</h1>
+          <p>Property-carrying driver · 70hr/8-day cycle · no adverse driving conditions</p>
+        </div>
+        <a className="app__docs-link" href={apiDocsUrl()} target="_blank" rel="noreferrer">
+          API Docs
+        </a>
       </header>
 
       <div className="app__layout">

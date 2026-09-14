@@ -8,6 +8,27 @@
   background: linear-gradient(135deg, #0f172a, #1e3a8a);
   color: #f8fafc;
   padding: 28px 32px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.app__docs-link {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.app__docs-link:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .app__header h1 {
