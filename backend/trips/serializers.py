@@ -115,3 +115,22 @@ class TripPlanResponseSerializer(serializers.Serializer):
 
 class ErrorResponseSerializer(serializers.Serializer):
     detail = serializers.CharField()
+
+
+class LocationSuggestQuerySerializer(serializers.Serializer):
+    q = serializers.CharField(min_length=2, max_length=255, help_text="Partial place name typed so far")
+
+
+class LocationSuggestionSerializer(serializers.Serializer):
+    display_name = serializers.CharField()
+    lat = serializers.FloatField()
+    lon = serializers.FloatField()
+
+
+class ReverseGeocodeQuerySerializer(serializers.Serializer):
+    lat = serializers.FloatField()
+    lon = serializers.FloatField()
+
+
+class ReverseGeocodeResponseSerializer(serializers.Serializer):
+    display_name = serializers.CharField()

@@ -3,11 +3,16 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
+from . import geocode as geo
 from . import hos
 from .geocode import GeocodeError, RoutingError
 from .models import Trip
 from .serializers import (
     ErrorResponseSerializer,
+    LocationSuggestQuerySerializer,
+    LocationSuggestionSerializer,
+    ReverseGeocodeQuerySerializer,
+    ReverseGeocodeResponseSerializer,
     TripPlanRequestSerializer,
     TripPlanResponseSerializer,
     TripSerializer,
@@ -73,3 +78,43 @@ def plan_trip(request):
 def recent_trips(request):
     trips = Trip.objects.all()[:10]
     return Response(TripSerializer(trips, many=True).data)
+
+
+@extend_schema(
+    parameters=[LocationSuggestQuerySerializer],
+    responses={200: LocationSuggestionSerializer(many=True)},
+    summary="Live location autocomplete",
+    description="Returns up to 5 place-name matches for a partial query, for a location input's autocomplete dropdown.",
+)
+@api_view(["GET"])
+def geocode_suggest(request):
+    query = request.query_params.get("q", "").strip()
+    if len(query) < 2:
+        return Response([])
+    try:
+        results = geo.suggest(query)
+    except Exception:
+        return Response([])
+    return Response(results)
+
+
+@extend_schema(
+    parameters=[ReverseGeocodeQuerySerializer],
+    responses={200: ReverseGeocodeResponseSerializer, 400: ErrorResponseSerializer},
+    summary="Reverse geocode a lat/lon",
+    description="Resolves a lat/lon (e.g. from the browser's geolocation API) to a place name, for a 'use my current location' button.",
+)
+@api_view(["GET"])
+def geocode_reverse(request):
+    try:
+        lat = float(request.query_params.get("lat"))
+        lon = float(request.query_params.get("lon"))
+    except (TypeError, ValueError):
+        return Response({"detail": "lat and lon query params are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        display_name = geo.reverse(lat, lon)
+    except GeocodeError as exc:
+        return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({"display_name": display_name})

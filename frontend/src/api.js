@@ -17,3 +17,13 @@ export async function fetchRecentTrips() {
 export function apiDocsUrl() {
   return `${baseURL.replace(/\/api\/?$/, '')}/api/docs/`
 }
+
+export async function suggestLocations(query, signal) {
+  const { data } = await client.get('/geocode/suggest/', { params: { q: query }, signal })
+  return data
+}
+
+export async function reverseGeocode(lat, lon) {
+  const { data } = await client.get('/geocode/reverse/', { params: { lat, lon } })
+  return data.display_name
+}

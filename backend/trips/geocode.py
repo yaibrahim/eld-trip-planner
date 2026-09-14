@@ -11,6 +11,7 @@ frontend.
 import requests
 
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
+NOMINATIM_REVERSE_URL = "https://nominatim.openstreetmap.org/reverse"
 OSRM_URL = "https://router.project-osrm.org/route/v1/driving"
 USER_AGENT = "eld-trip-planner-assessment/1.0 (contact: mitch.i@scriberunner.com)"
 
@@ -39,6 +40,37 @@ def geocode(place_name):
         raise GeocodeError(f"Could not find a location matching '{place_name}'")
     top = results[0]
     return float(top["lat"]), float(top["lon"]), top.get("display_name", place_name)
+
+
+def suggest(query, limit=5):
+    """Return up to `limit` {display_name, lat, lon} matches for a partial
+    place name, for a live autocomplete dropdown."""
+    resp = requests.get(
+        NOMINATIM_URL,
+        params={"q": query, "format": "json", "limit": limit, "addressdetails": 0},
+        headers={"User-Agent": USER_AGENT},
+        timeout=8,
+    )
+    resp.raise_for_status()
+    return [
+        {"display_name": r["display_name"], "lat": float(r["lat"]), "lon": float(r["lon"])}
+        for r in resp.json()
+    ]
+
+
+def reverse(lat, lon):
+    """Return the display_name for a lat/lon, for a 'use my location' button."""
+    resp = requests.get(
+        NOMINATIM_REVERSE_URL,
+        params={"lat": lat, "lon": lon, "format": "json"},
+        headers={"User-Agent": USER_AGENT},
+        timeout=8,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    if "error" in data or "display_name" not in data:
+        raise GeocodeError("Could not resolve that location")
+    return data["display_name"]
 
 
 def route(coords):

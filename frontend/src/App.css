@@ -124,6 +124,137 @@
   border-color: #2563eb;
 }
 
+.location-input {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.location-input label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0;
+}
+
+.location-input__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.location-input__label-row button.location-input__locate-btn {
+  border: none;
+  background: none;
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.location-input__label-row button.location-input__locate-btn:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.location-input__label-row button.location-input__locate-btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.location-input__label-row button.location-input__locate-btn:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.location-input__field {
+  position: relative;
+}
+
+.location-input__field input {
+  width: 100%;
+  font: inherit;
+  padding: 9px 30px 9px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-weight: 400;
+  box-sizing: border-box;
+}
+
+.location-input__field input:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+  border-color: #2563eb;
+}
+
+.location-input__spinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 13px;
+  border: 2px solid #cbd5e1;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: location-spin 0.7s linear infinite;
+}
+
+@keyframes location-spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+.location-input__suggestions {
+  position: absolute;
+  z-index: 20;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 4px 0 0;
+  padding: 4px;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.location-input__suggestions li + li {
+  margin-top: 2px;
+}
+
+.location-input__suggestions li button {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: #0f172a;
+  cursor: pointer;
+  line-height: 1.35;
+}
+
+.location-input__suggestions li button:hover {
+  background: #eff6ff;
+}
+
+.location-input__error {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #b91c1c;
+}
+
 .trip-form button {
   width: 100%;
   padding: 11px;

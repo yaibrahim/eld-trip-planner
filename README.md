@@ -8,8 +8,8 @@ ELD grid.
 
 - **Backend**: Django + Django REST Framework — geocoding, routing, and the
   Hours-of-Service (HOS) simulation engine.
-- **Frontend**: React (Vite) — trip form, an interactive map, and an SVG
-  rendering of the daily log grid.
+- **Frontend**: React (Vite) — trip form with live location autocomplete,
+  an interactive map, and an SVG rendering of the daily log grid.
 - **Map data**: [OSRM](https://project-osrm.org/) (routing) and
   [Nominatim/OpenStreetMap](https://nominatim.org/) (geocoding) — both free,
   keyless, called server-side.
@@ -110,6 +110,12 @@ and served at `/api/docs/` (Swagger UI), `/api/redoc/` (ReDoc), and
 Returns `{ summary, waypoints, route: { geometry }, stops, daily_logs }`.
 
 `GET /api/trips/` — the 10 most recently computed trips.
+
+`GET /api/geocode/suggest/?q=<partial text>` — up to 5 place-name matches,
+for the location fields' live autocomplete dropdown.
+
+`GET /api/geocode/reverse/?lat=&lon=` — resolves coordinates to a place
+name, used by the "use my current location" button.
 
 ## Deployment
 
